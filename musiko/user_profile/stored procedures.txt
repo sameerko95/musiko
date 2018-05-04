@@ -1,0 +1,52 @@
+# Procedure to post content
+delimiter //
+CREATE PROCEDURE postContentImage(attachment_id varchar(100), post_id varchar(100), tag_id varchar(100),
+									album_id varchar(100), photo mediumblob, user_id varchar(100),
+                                    p_text varchar(2000), timest timestamp)
+BEGIN
+insert into photos values(attachment_id, album_id, photo, user_id, tag_id);
+insert into posts values(post_id, user_id, p_text, attachment_id, null, tag_id, timest);
+END //
+
+delimiter ;
+
+
+# Procedure when user accepts friend request
+delimiter //
+CREATE PROCEDURE acceptRequest(user_1 varchar(100), user_2 varchar(100))
+BEGIN
+
+update requests set status = "accepted" where user_id2 = user_2;
+insert into friends values(concat(user_1, user_2), user_1, user_2);
+insert into friends values(concat(user_2, user_1), user_2, user_1);
+
+END //
+
+delimiter ;
+
+# Procedure to retreive friends of friends
+
+delimiter //
+CREATE PROCEDURE friendsOfFriends(user_id varchar(100))
+	BEGIN
+	DECLARE friend_cursor CURSOR FOR
+	select user_2 from friends where user_1 = user_id;
+
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET finished = 1;
+
+	open friend_cursor;
+	get_fof: LOOP
+
+	fetch friend_cursor into friend;
+		if finished=1 then
+			leave get_fof;
+			end if;
+		set @fr := (select user_2 from friends where user_1 = friend);
+		set @fof_list := (select * from fr union select * from fof_list);
+
+	end loop get_fof;
+	
+    close friend_cursor;
+END //
+
+delimiter ;
