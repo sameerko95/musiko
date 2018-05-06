@@ -1,0 +1,164 @@
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+<script>
+    var people = [];
+    var names = [];
+    var username = "";
+    var friends = [];
+
+    $(document).ready(function(){
+        $('#people_list').hide();
+        var img_url = "../media/app_images/friends.png";
+        {% if people %}
+            username = "{{ username }}";
+            people = {{ people | safe }};
+            friends = {{ friends | safe }};
+            for(i=0;i<friends.length; i++){
+                if(friends[i]["profile_pic"]!="None"){
+                    img_url = friends[i]["profile_pic"];
+                }
+                name = friends[i]['first_name'] + ' '+ friends[i]['last_name'];
+
+                var html = '<tr>'+
+                    '<td class="col-4">'+
+                        '<img class="card-img-left" src="'+ img_url +'" alt="Card image cap" width="100px" height="100px">'+
+                    '</td>'+
+                    '<td class="col-8">'+
+                        '<div class="card-body">'+
+                        '<h5 class="card-title">' + name +'</h5>'+
+                        
+                        '<a name="view" id = "'+ friends[i]['username'] +'" class="btn btn-primary">View Profile</a>'+
+                    '</td>'+
+                '</tr>';
+
+                names.push(name);
+                $('#people_list').append(html);
+            }
+            $('#people_list').show();
+
+        {% endif %}
+        console.log(friends);
+        $('#name').on("change paste keyup", function(){
+
+        });
+
+        // $( "#name" ).autocomplete({
+        //     source: names
+        // });
+
+        $(document).on("click", '[name=add]', function(){
+            console.log(this.id);
+            $.ajax({
+                url: 'add_friend',
+                type: 'POST',
+                data: {
+                    'requested_id': this.id,
+                    'username': username
+                },
+                contentType: "json",
+                async: false,
+                success: function (data) {
+                    alert(data);
+                },
+                error: function(request, error){
+                    console.log("error: "+error)
+                }
+            });
+        });
+
+         $(document).on("click", '[name=view]', function(){
+            console.log(this.id);
+            $.ajax({
+                url: '../user_profile/view_profile',
+                type: 'POST',
+                data: {
+                    'profile_id': this.id,
+                },
+                contentType: "json",
+                async: false,
+                success: function (data) {
+                    alert(data);
+                },
+                error: function(request, error){
+                    console.log("error: "+error)
+                }
+            });
+        });
+        
+    });
+
+    function searchList(){
+        $('#people_list').empty();
+        var img_url = "../media/app_images/friends.png";
+        for(i=0;i<people.length; i++){
+            if(people[i]["profile_pic"]!="None"){
+                img_url = people[i]["profile_pic"];
+            }
+            name = people[i]['first_name'] + ' '+ people[i]['last_name'];
+            var re = new RegExp($('#name').val(), 'g');
+            var matches = name.match(re);
+            if(matches!=null){
+                console.log("in");
+
+                var html = '<tr>'+
+                    '<td class="col-4">'+
+                        '<img class="card-img-left" src="'+ img_url +'" alt="Card image cap" width="100px" height="100px">'+
+                    '</td>'+
+                    '<td class="col-8">'+
+                        '<div class="card-body">'+
+                        '<h5 class="card-title">' + name +'</h5>'+
+                        '<a name="add" id = "'+ people[i]['username'] +'" class="btn btn-primary">Add Friend</a>'+
+                        '<a name="view" id = "'+ people[i]['username'] +'" class="btn btn-primary">View Profile</a>'+
+                    '</td>'+
+                '</tr>';
+
+                names.push(name);
+                $('#people_list').append(html);
+            }
+        }
+        $('#people_list').show();
+    }
+
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if(document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for(var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if(cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $.ajaxSetup({
+        global: true,
+        beforeSend: function(xhr, settings) {
+            if(!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                xhr.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded; charset=UTF-8');
+            }
+        }
+    });
+</script>
+
+<body>
+    <input type="text" class="form-control" placeholder="Search People" id="name">
+    <input type="button" class="btn btn-primary" value="Search" onclick="searchList()">
+    <div class="card" style="width: 18rem;">
+        <table class="table" id = "people_list" style="width: 60%">
+            
+        </table>
+    </div>
+</body>
