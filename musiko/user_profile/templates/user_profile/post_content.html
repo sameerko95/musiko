@@ -1,0 +1,25 @@
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<!-- 
+<!-- <script>
+
+</script>
+<body>
+    <p>
+        {{dic}}
+    </p>
+</body> -->
+ <body>
+    <form id="postForm" method="post" action="post_content" enctype="multipart/form-data">{% csrf_token %}
+        <input type="hidden" name="username" value="{{username}}">
+        <input type="file" name="media" id = "media">
+
+        <input type="text" name = "post" id="post">
+        
+        <button type="submit">Post</button>
+    </form>
+</body>
