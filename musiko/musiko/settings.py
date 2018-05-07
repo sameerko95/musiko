@@ -38,7 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'user_profile',
+<<<<<<< HEAD
     'news'
+=======
+    'friends'
+>>>>>>> fc4013d8c438119c5341e1fec6bc812455c39138
 ]
 
 MIDDLEWARE = [

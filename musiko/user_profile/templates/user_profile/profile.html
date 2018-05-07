@@ -5,6 +5,7 @@
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 
+<<<<<<< HEAD
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -57,6 +58,104 @@ body
 }
 }
 </style>
+=======
+<script>
+    var requests = []
+    $(document).ready(function(){
+        {% if requests %}
+            requests = {{ requests | safe }};
+            var img_url = "../media/app_images/friends.png";
+            $('.badge').append(requests.length);
+            for(i=0;i<requests.length; i++){
+                var html = '<li><tr>'+
+                    '<td class="col-4">'+
+                        '<img class="card-img-left" src="'+ img_url +'" alt="Card image cap" width="100px" height="100px">'+
+                    '</td>'+
+                    '<td class="col-8">'+
+                        '<div class="card-body">'+
+                        '<h5 class="card-title">' + requests[i]['first_name'] + ' ' + requests[i]['last_name'] + '</h5>'+
+                        '<a name="add" id = "'+ requests[i]['username'] +'" class="btn btn-primary">Accept Request</a>'+
+                    '</td>'+
+                '</tr></li>';
+                $('.dropdown-menu').append(html);
+            }
+        {% endif %}
+
+        {% if text %}
+            var image = '<img src={{upload_url}} style="width: auto; height: auto;"/>';
+            $('#img').append(image);
+        {% else %}
+            $('#img').hide();
+        {% endif %}
+        
+        $('.dropdown-toggle').on("click", function(){
+            $('.badge').remove();
+            $.ajax({
+                url: '../friends/change_seen',
+                type: 'POST',
+                data: {
+                    'requests': requests,
+                    'username': "{{username}}",
+                },
+                contentType: "json",
+                async: false,
+                success: function (data) {
+                    alert(data);
+                },
+                error: function(request, error){
+                    console.log("error: "+error)
+                }
+            });
+        });
+
+        $(document).on("click", '[name=add]', function(){
+            console.log(this.id);
+            $.ajax({
+                url: '../friends/add_friend',
+                type: 'POST',
+                data: {
+                    'requestor_id': this.id,
+                    'username': "{{username}}"
+                },
+                contentType: "json",
+                async: false,
+                success: function (data) {
+                    alert(data);
+                },
+                error: function(request, error){
+                    console.log("error: "+error)
+                }
+            });
+        });
+    });
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if(document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for(var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if(cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $.ajaxSetup({
+        global: true,
+        beforeSend: function(xhr, settings) {
+            if(!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                xhr.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded; charset=UTF-8');
+            }
+        }
+    });
+
+</script>
+>>>>>>> fc4013d8c438119c5341e1fec6bc812455c39138
 <body>
     {% include "user_profile\header.html" %}
     <div class="container">
